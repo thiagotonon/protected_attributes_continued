@@ -21,7 +21,7 @@ module ActiveRecord
 
       def build(attributes = {}, options = {}, &block)
         if attributes.is_a?(Array)
-          attributes.collect { |attr| build(attr, options, &block) }
+          attributes.collect { |attr| build(attr, &block) }
         else
           add_to_target(build_record(attributes, options)) do |record|
             yield(record) if block_given?
@@ -30,11 +30,11 @@ module ActiveRecord
       end
 
       def create(attributes = {}, options = {}, &block)
-        create_record(attributes, options, &block)
+        create_record(attributes, &block)
       end
 
       def create!(attributes = {}, options = {}, &block)
-        create_record(attributes, options, true, &block)
+        create_record(attributes, true, &block)
       end
 
       def create_record(attributes, options, raise = false, &block)
@@ -43,7 +43,7 @@ module ActiveRecord
         end
 
         if attributes.is_a?(Array)
-          attributes.collect { |attr| create_record(attr, options, raise, &block) }
+          attributes.collect { |attr| create_record(attr, raise, &block) }
         else
           transaction do
             add_to_target(build_record(attributes, options)) do |record|
@@ -62,16 +62,16 @@ module ActiveRecord
       undef :create!
 
       def build(attributes = {}, options = {}, &block)
-        @association.build(attributes, options, &block)
+        @association.build(attributes, &block)
       end
       alias_method :new, :build
 
       def create(attributes = {}, options = {}, &block)
-        @association.create(attributes, options, &block)
+        @association.create(attributes, &block)
       end
 
       def create!(attributes = {}, options = {}, &block)
-        @association.create!(attributes, options, &block)
+        @association.create!(attributes, &block)
       end
     end
 
@@ -88,7 +88,7 @@ module ActiveRecord
             attributes[inverse.foreign_key] = target.id
           end
 
-          super(attributes, options)
+          super(attributes)
         end
     end
 
@@ -99,7 +99,7 @@ module ActiveRecord
       def build_record(attributes, options = {})
         ensure_not_nested
 
-        record = super(attributes, options)
+        record = super(attributes)
 
         inverse = source_reflection.inverse_of
         if inverse
@@ -126,22 +126,22 @@ module ActiveRecord
       undef :build
 
       def create(attributes = {}, options = {}, &block)
-        create_record(attributes, options, &block)
+        create_record(attributes, &block)
       end
 
       def create!(attributes = {}, options = {}, &block)
-        create_record(attributes, options, true, &block)
+        create_record(attributes, true, &block)
       end
 
       def build(attributes = {}, options = {})
-        record = build_record(attributes, options)
+        record = build_record(attributes)
         yield(record) if block_given?
         set_new_record(record)
         record
       end
 
       def create_record(attributes, options = {}, raise_error = false)
-        record = build_record(attributes, options)
+        record = build_record(attributes)
         yield(record) if block_given?
         saved = record.save
         set_new_record(record)
