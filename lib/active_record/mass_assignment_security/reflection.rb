@@ -4,16 +4,16 @@ module ActiveRecord
       class AbstractReflection
         undef :build_association
 
-        def build_association(*options, &block)
-          klass.new(*options, &block)
+        def build_association(attributes, &block)
+          klass.new(attributes, &block)
         end
       end
     else
       class AssociationReflection
         undef :build_association
 
-        def build_association(*options, &block)
-          klass.new(*options, &block)
+        def build_association(attributes, &block)
+          klass.new(attributes, &block)
         end
       end
     end
